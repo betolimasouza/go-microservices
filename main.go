@@ -16,7 +16,7 @@ func main() {
 	ph := handlers.NewProducts(l)
 
 	sm := http.NewServeMux()
-	sm.Handle("/products", ph)
+	sm.Handle("/", ph)
 
 	s := &http.Server{
 		Addr:         ":9090",
@@ -41,6 +41,11 @@ func main() {
 
 	l.Println("Recieved terminate, graceful shutdown", sig)
 
-	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	tc, err := context.WithTimeout(context.Background(), 30*time.Second)
+
+	if err != nil {
+		l.Println(err)
+	}
+
 	s.Shutdown(tc)
 }

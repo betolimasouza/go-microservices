@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 )
@@ -13,7 +14,7 @@ type Product struct {
 	Price       float32 `json:"price"`
 	SKU         string  `json:"-"`
 	CreatedOn   string  `json:"-"`
-	UpdateOn    string  `json:"-"`
+	UpdateOn    string  `json:"LastUpdate"`
 	DeletedOn   string  `json:"-"`
 }
 
@@ -37,6 +38,31 @@ func GetProducts() Products {
 func AddProduct(p *Product) {
 	p.ID = GetNextID()
 	productList = append(productList, p)
+}
+
+func UpdateProduct(id int, p *Product) error {
+	index, err := findProduct(id)
+
+	if err != nil {
+		return err
+	}
+
+	productList[index] = p
+	productList[index].UpdateOn = time.Now().Local().String()
+
+	return err
+}
+
+var ErrProductNotFound = fmt.Errorf("Product not Found")
+
+func findProduct(id int) (int, error) {
+	for i, p := range productList {
+		if p.ID == id {
+			return i, nil
+		}
+	}
+
+	return -1, ErrProductNotFound
 }
 
 func GetNextID() int {
