@@ -9,14 +9,23 @@ import (
 	"time"
 
 	"github.com/betolimasouza/go-microservices/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 	ph := handlers.NewProducts(l)
 
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	sm := mux.NewRouter()
+
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", ph.AddProduct)
 
 	s := &http.Server{
 		Addr:         ":9090",
@@ -39,7 +48,7 @@ func main() {
 
 	sig := <-sigChan
 
-	l.Println("Recieved terminate, graceful shutdown", sig)
+	l.Println("Graceful shutdown", sig)
 
 	tc, err := context.WithTimeout(context.Background(), 30*time.Second)
 
