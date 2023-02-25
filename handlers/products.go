@@ -25,7 +25,6 @@ func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(rw, "Unable to Marshal JSON", http.StatusInternalServerError)
 	}
-
 }
 
 func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
